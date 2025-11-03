@@ -50,7 +50,7 @@ def main():
         header = f":loudspeaker: *『인사총무팀 공지』* <!channel>\n\n"
 
         notice_msg = (
-            f"안녕하세요? 평택 클러스터 구성원 여러분! 채용팀 입니다. :blush:\n"
+            f"안녕하세요? 평택 클러스터 구성원 여러분! 인사팀 입니다. :blush:\n"
             f"\n"
             f"평택센터에서 함께할 인재를 찾기 위해 사내 *추천제도* 를 운영하고 있습니다.\n"
             f":2776724f56a9beff08: 주변에 *컬리와 잘 맞는 인재가 있다면* 많은 추천 부탁드립니다. :2776724f56a9beff08:\n\n"
@@ -69,8 +69,8 @@ def main():
             f"\n"
             f"\n"
             f":purple_heart: *채용 및 추천 관련 문의* :purple_heart:\n"
-            f":slack:  <@U05NXEF1W5S> , <@U04S96F1G20>\n"
-            f":phone:  *010-5820-9367 / 010-5820-6897*\n\n"
+            f":slack:  <@U094ZMCF1T2> , <@U05P7LCBQ8H>\n"
+            f":phone:  *010-5820-6937*\n\n"
             f"\n"
             f"\n"
             f"궁금한 사항이 있으시다면 언제든지 문의해 주시기 바랍니다.\n"
