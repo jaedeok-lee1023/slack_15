@@ -70,7 +70,7 @@ def main():
             f"\n"
             f":purple_heart: *채용 및 추천 관련 문의* :purple_heart:\n"
             f"*:slack: 문의사항 : <@U094ZMCF1T2>,<@U05P7LCBQ8H>*\n"
-            f":phone:  *010-5820-6937*\n\n"
+            f":phone:  *010-5820-9367*\n\n"
             f"\n"
             f"감사합니다.\n"
         )
