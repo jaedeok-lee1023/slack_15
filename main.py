@@ -1,7 +1,7 @@
 import os
 import sys
 import datetime
-import arrow
+# import arrow  # 현재 코드에서 사용하지 않는다면 지워도 무방합니다.
 from dotenv import load_dotenv
 from slack_sdk import WebClient
 from slack_sdk.errors import SlackApiError
@@ -37,50 +37,88 @@ if today in HOLIDAYS:
 load_dotenv()
 SLACK_TOKEN = os.environ.get("SLACK_TOKEN")
 
-def send_slack_message(message, channel):
+def send_slack_message(blocks_data, fallback_text, channel):
     try:
         client = WebClient(token=SLACK_TOKEN)
-        client.chat_postMessage(channel=channel, text=message)
+        # 텍스트 대신 blocks 매개변수를 사용하여 전송 (text는 알림 팝업용 텍스트)
+        client.chat_postMessage(channel=channel, text=fallback_text, blocks=blocks_data)
     except SlackApiError as e:
         print(f"⚠️ Error sending message to {channel} : {e}")
 
 def main():
     for cluster in clusters:
-        # 메시지 제목 설정
-        header = f"*[공지｜사내 추천제도 안내]*\n\n\n"
+        # 📝 Block Kit 구조로 메시지 본문 작성
+        message_blocks = [
+            {
+                # [블록 1] 상단 공지 내용 (일반 마크다운)
+                "type": "section",
+                "text": {
+                    "type": "mrkdwn",
+                    "text": "*[공지｜사내 추천제도 안내]*\n\n\n1. *중요도* : 중\n2. *대상* : 평택 클러스터 구성원 전체\n3. *주요 내용*\n\n안녕하세요? 평택 클러스터 구성원 여러분!:blush:\n\n우리 클러스터에서 함께할 인재를 찾기 위해 사내 *추천제도* 를 운영하고 있습니다.\n:2776724f56a9beff08:주변에 *컬리와 잘 맞는 인재가 있다면* 6층 컬리스라운지(직원휴게실) 또는 2층 통합사무실에 방문하여 추천 해주시면 됩니다!:2776724f56a9beff08:\n\n:감사콩gif:구성원 여러분들의 많은 추천 부탁드립니다.:감사콩gif:\n\n\n:bulb: *사내추천제도란?*"
+                }
+            },
+            {
+                # [블록 2] 인용구 + 밑줄 적용 영역 (Rich Text 블록)
+                "type": "rich_text",
+                "elements": [
+                    {
+                        "type": "rich_text_quote",
+                        "elements": [
+                            {
+                                "type": "text",
+                                "text": "컬리 구성원의 추천받은 지원자의 서류 및 검토 후 입사 시 일정 기간 근속에 따라 "
+                            },
+                            {
+                                "type": "text",
+                                "text": "추천자에게 보상금",
+                                "style": {"bold": True}
+                            },
+                            {
+                                "type": "text",
+                                "text": " 이 지급되는 제도 입니다!\n\n"
+                            },
+                            {
+                                # ✨ 원하시던 굵은 글씨 + 밑줄 동시 적용 부분 ✨
+                                "type": "text",
+                                "text": "\"2026년 6월부터 온라인 / 대면 접수가 모두 가능합니다!\"\n",
+                                "style": {
+                                    "bold": True,
+                                    "underline": True
+                                }
+                            },
+                            {
+                                "type": "text",
+                                "text": "제출 방법 및 자세한 안내 사항 은 "
+                            },
+                            {
+                                "type": "link",
+                                "url": "https://kurlyptrc.notion.site/5eb394b593ac4784bc4dc4a3ff82087a",
+                                "text": "추천 채용 제도 안내",
+                                "style": {"bold": True}
+                            },
+                            {
+                                "type": "text",
+                                "text": " 에서 확인해 주시기 바랍니다.\n"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                # [블록 3] 하단 내용 (일반 마크다운)
+                "type": "section",
+                "text": {
+                    "type": "mrkdwn",
+                    "text": "\n\n:pushpin: *추천 채용 보상 안내*\n>:ck11: 선임/사원/스탭(계약직) : (직/간접 추천 동일) *추천 대상자 근속 3개월 후 300,000원*\n>:ck11: 스탭(정규직) 이상 : (간접 추천) *추천 대상자 근속 3개월 후 500,000원*\n>:ck11: 스탭(정규직) 이상 : (직접 추천) *추천 대상자 근속 3개월 후 500,000원 / 추천대상자 근속 6개월 후 500,000원*\n\n\n:purple_heart: *채용 및 추천 관련 문의* :purple_heart:\n*:slack: 문의사항 : <@U094ZMCF1T2>,<@U05P7LCBQ8H>*\n:phone:  *010-5820-9367*\n\n\n감사합니다."
+                }
+            }
+        ]
 
-        notice_msg = ( 
-            f"1. *중요도* : 중\n"
-            f"2. *대상* : 평택 클러스터 구성원 전체\n"
-            f"3. *주요 내용*\n\n"
-            f"\n"
-            f"안녕하세요? 평택 클러스터 구성원 여러분!:blush:\n\n"
-            f"우리 클러스터에서 함께할 인재를 찾기 위해 사내 *추천제도* 를 운영하고 있습니다.\n"
-            f":2776724f56a9beff08:주변에 *컬리와 잘 맞는 인재가 있다면* 6층 컬리스라운지(직원휴게실) 또는 2층 통합사무실에 방문하여 추천 해주시면 됩니다!:2776724f56a9beff08:\n\n" 
-            f":감사콩gif:구성원 여러분들의 많은 추천 부탁드립니다.:감사콩gif:\n"
-            f"\n\n"
-            f":bulb: *사내추천제도란?*\n"
-            f">컬리 구성원의 추천받은 지원자의 서류 및 검토 후 입사 시 일정 기간 근속에 따라 *추천자에게 보상금* 이 지급되는 제도 입니다!\n"
-            f"> *\"2026년 6월부터 온라인 / 대면 접수가 모두 가능합니다!\"*\n"
-            f">제출 방법 및 자세한 안내 사항 은 *<https://kurlyptrc.notion.site/5eb394b593ac4784bc4dc4a3ff82087a|추천 채용 제도 안내>* 에서 확인해 주시기 바랍니다.\n\n"
-            f"\n\n"
-            f":pushpin: *추천 채용 보상 안내*\n"
-            f">:ck11: 선임/사원/스탭(계약직) : (직/간접 추천 동일) *추천 대상자 근속 3개월 후 300,000원*\n"
-            f">:ck11: 스탭(정규직) 이상 : (간접 추천) *추천 대상자 근속 3개월 후 500,000원*\n"
-            f">:ck11: 스탭(정규직) 이상 : (직접 추천) *추천 대상자 근속 3개월 후 500,000원 / 추천대상자 근속 6개월 후 500,000원*\n\n"
-            f"\n"
-            f":purple_heart: *채용 및 추천 관련 문의* :purple_heart:\n"
-            f"*:slack: 문의사항 : <@U094ZMCF1T2>,<@U05P7LCBQ8H>*\n"
-            f":phone:  *010-5820-9367*\n\n"
-            f"\n"
-            f"감사합니다.\n"
-        )
- 
-# 메시지 본문
-        body = header + notice_msg
+        # 모바일 푸시 알림용 미리보기 텍스트 (필수)
+        fallback_text = "[공지] 사내 추천제도 안내"
 
-        # 슬랙 채널에 전송
-        send_slack_message(body, cluster.channel)
+        # 슬랙 채널에 전송 (blocks 구조체 통째로 넘김)
+        send_slack_message(message_blocks, fallback_text, cluster.channel)
 
 if __name__ == "__main__":
     main()
