@@ -1,9 +1,7 @@
 name: slack CI
 
 on:
-  workflow_dispatch:
-  schedule:
-   - cron: "42 4 * * 5"   # UTC 기준, 매주 금요일 오전 4시 42분 실행 (한국시간 오후 1시 42분)
+  workflow_dispatch: # 외부 스케줄러(cron-job.org) 및 수동 실행용
   
 jobs:
   post_announcement_message:
@@ -12,7 +10,7 @@ jobs:
       - name: action code checkout
         uses: actions/checkout@v3
       - name: Set up Python 3.10
-      
+        
         uses: actions/setup-python@v4
         with:
           python-version: "3.10"
